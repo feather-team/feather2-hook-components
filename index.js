@@ -2,26 +2,29 @@
 
 module.exports = function(feather, opts){	
 	var moduleName = feather.config.get('project.modulename');
+	var DIR = (feather.config.env().get('component.dir') || 'components/').replace(/\/$/, '');
 
 	if(moduleName == 'common'){
-		var DIR = (feather.config.env().get('component.dir') || 'components/').replace(/\/$/, '');
-
-		feather.on('lookup:file', function(info, file){
-			if(!info.file){
-				info._rest = info.rest;
-			}
+		feather.on('components:info', function(info){
+			feather.commonInfo.components = info;
 		});
+
+		// feather.on('lookup:file', function(info, file){
+		// 	if(!info.file){
+		// 		info._rest = info.rest;
+		// 	}
+		// });
 
 		require('fis3-hook-components')(feather, opts);
 		
-		feather.on('lookup:file', function(info, file){
-			if(info.file && info.file.isComponent && info._rest){
-				feather.commonInfo.components[info._rest] = {
-					dir: DIR + '/' + info._rest,
-					fullName: info.file.id
-				};
-			}
-		});
+		// feather.on('lookup:file', function(info, file){
+		// 	if(info.file && info.file.isComponent && info._rest){
+		// 		feather.commonInfo.components[info._rest] = {
+		// 			dir: DIR + '/' + info._rest,
+		// 			fullName: info.file.id
+		// 		};
+		// 	}
+		// });
 	}else if(moduleName){
 		var RULE = /^([0-9a-zA-Z\.\-_]+)(?:\/(.+))?$/;
 		var componentInfo = feather.commonInfo.components, map = feather.commonInfo.map;
@@ -30,8 +33,7 @@ module.exports = function(feather, opts){
 
 		feather.on('lookup:file', function(info, file){
 			if(!info.file){
-
-				var fullName = info.rest
+				var fullName = info.rest;
 
 				if(!map[fullName]){
 					var match = RULE.exec(info.rest);
@@ -40,7 +42,7 @@ module.exports = function(feather, opts){
 						var cName = match[1], basename = match[2], component;
 
 						if(component = componentInfo[cName]){
-							fullName = basename ? component.dir + '/' + basename : component.fullName;
+							fullName = DIR + '/' + cName + '/' + (basename ? basename : component.main);
 						}
 
 						info.rest = fullName;
