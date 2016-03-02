@@ -1,8 +1,47 @@
 'use strict';
 
+var path = require('path');
+
+function _findResource(name, map){
+	if(map[name]){
+		return name;
+	}
+
+	var extList = ['.js', '.jsx', '.coffee', '.css', '.sass', '.scss', '.less', '.html', '.tpl', '.vm'];
+
+	for(var i = 0, len = extList.length; i < len; i++){
+		var tmpName = name + extList[i];
+
+		if(map[tmpName]){
+			return tmpName;
+		}
+	}
+
+	return;
+}
+
+function findResource(name, map){
+	var info, list = [
+		name,
+		name + '/index',
+		name + '/' + path.basename(name)
+	];
+
+	while(list.length){
+		name = list.shift();
+
+		if(info = _findResource(name, map)){
+			break;
+		}
+	}
+
+	return info;
+}
+
 module.exports = function(feather, opts){	
 	var moduleName = feather.config.get('project.modulename');
-	var DIR = (feather.config.env().get('component.dir') || 'components/').replace(/\/$/, '');
+
+	require('fis3-hook-components')(feather, opts);
 
 	if(moduleName == 'common'){
 		feather.on('components:info', function(info){
@@ -15,7 +54,7 @@ module.exports = function(feather, opts){
 		// 	}
 		// });
 
-		require('fis3-hook-components')(feather, opts);
+		
 		
 		// feather.on('lookup:file', function(info, file){
 		// 	if(info.file && info.file.isComponent && info._rest){
@@ -26,10 +65,9 @@ module.exports = function(feather, opts){
 		// 	}
 		// });
 	}else if(moduleName){
-		var RULE = /^([0-9a-zA-Z\.\-_]+)(?:\/(.+))?$/;
+		var RULE = /^([0-9a-zA-Z\.\-_]+)(?:\/(.+))?\/?$/;
+		var DIR = (feather.config.env().get('component.dir') || 'components/').replace(/^\/+|\/+$/, '');
 		var componentInfo = feather.commonInfo.components, map = feather.commonInfo.map;
-
-		require('fis3-hook-components')(feather, opts);
 
 		feather.on('lookup:file', function(info, file){
 			if(!info.file){
@@ -39,12 +77,21 @@ module.exports = function(feather, opts){
 					var match = RULE.exec(info.rest);
 
 					if(match){
-						var cName = match[1], basename = match[2], component = componentInfo[cName] || {};
-						fullName = DIR + '/' + cName + '/' + (basename ? basename : (component.main || 'index.js'));
+						var cName = match[1], subpath = match[2], config = componentInfo[cName] || {};
+
+						if(subpath){
+							fullName = findResource(DIR + '/' + cName + '/' + subpath, map);
+						}else{
+							fullName = findResource(DIR + '/' + cName + '/' + (config.main || 'index'), map);
+
+							if(!fullName){
+								fullName = findResource(DIR + '/' + cName + '/' + cName, map);
+							}
+						}
 					}
 				}
 
-				if(map[fullName]){
+				if(fullName && map[fullName]){
 					var resolved = info.file = feather.file.wrap(fullName);
 					resolved.url = '/' + fullName;
 					resolved.id = fullName;
