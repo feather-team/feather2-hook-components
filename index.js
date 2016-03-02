@@ -39,13 +39,8 @@ module.exports = function(feather, opts){
 					var match = RULE.exec(info.rest);
 
 					if(match){
-						var cName = match[1], basename = match[2], component;
-
-						if(component = componentInfo[cName]){
-							fullName = DIR + '/' + cName + '/' + (basename ? basename : component.main);
-						}
-
-						info.rest = fullName;
+						var cName = match[1], basename = match[2], component = componentInfo[cName] || {};
+						fullName = DIR + '/' + cName + '/' + (basename ? basename : (component.main || 'index.js'));
 					}
 				}
 
@@ -65,6 +60,8 @@ module.exports = function(feather, opts){
 					resolved.isFile = function(){
 						return true;
 					};
+
+					info.rest = fullName;
 				}
 			}
 		});
