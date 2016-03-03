@@ -1,14 +1,18 @@
 {
   "name": "feather2-hook-components",
   "version": "1.0.0",
-  "description": "",
+  "description": "feather2的components解析策略，在fis的基础上，解决扩展多模块时，解析不了其他模块路径的问题",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "jsyczhanghao@sina.com",
   "license": "ISC",
   "dependencies": {
     "fis3-hook-components": "^1.0.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feather-team/feather2-hook-components.git"
+  },
 }
