@@ -45,7 +45,7 @@ module.exports = function(feather, opts){
 
 	if(moduleName == 'common'){
 		feather.on('components:info', function(info){
-			feather.commonInfo.components = info;
+			feather.releaseInfo.components = info;
 		});
 
 		// feather.on('lookup:file', function(info, file){
@@ -67,7 +67,7 @@ module.exports = function(feather, opts){
 	}else if(moduleName){
 		var RULE = /^([0-9a-zA-Z\.\-_]+)(?:\/(.+))?\/?$/;
 		var DIR = (feather.config.env().get('component.dir') || 'components/').replace(/^\/+|\/+$/, '');
-		var componentInfo = feather.commonInfo.components, map = feather.commonInfo.map;
+		var componentInfo = feather.releaseInfo.components, map = feather.releaseInfo.map;
 
 		feather.on('lookup:file', function(info, file){
 			if(!info.file){
