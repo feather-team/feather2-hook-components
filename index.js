@@ -45,47 +45,37 @@ module.exports = function(feather, opts){
 
 	if(moduleName == 'common'){
 		feather.on('components:info', function(info){
-			feather.releaseInfo.components = info;
+			var components = {};
+
+			for(var i in info){
+				components[moduleName + ':' + i] = info[i];
+			}
+
+			feather.releaseInfo.components = components;
 		});
-
-		// feather.on('lookup:file', function(info, file){
-		// 	if(!info.file){
-		// 		info._rest = info.rest;
-		// 	}
-		// });
-
-		
-		
-		// feather.on('lookup:file', function(info, file){
-		// 	if(info.file && info.file.isComponent && info._rest){
-		// 		feather.commonInfo.components[info._rest] = {
-		// 			dir: DIR + '/' + info._rest,
-		// 			fullName: info.file.id
-		// 		};
-		// 	}
-		// });
 	}else if(moduleName){
-		var RULE = /^([0-9a-zA-Z\.\-_]+)(?:\/(.+))?\/?$/;
+		var RULE = /^(\w+:)?([0-9a-zA-Z\.\-_]+)(?:\/(.+))?\/?$/;
 		var DIR = (feather.config.env().get('component.dir') || 'components/').replace(/^\/+|\/+$/, '');
 		var componentInfo = feather.releaseInfo.components, map = feather.releaseInfo.map;
 
 		feather.on('lookup:file', function(info, file){
 			if(!info.file){
-				var fullName = info.rest;
-
+				var fullName = info.rest.replace(/:\/([^\/])/, ':$1');
+	
 				if(!map[fullName]){
-					var match = RULE.exec(info.rest);
+					var match = RULE.exec(fullName);
 
 					if(match){
-						var cName = match[1], subpath = match[2], config = componentInfo[cName] || {};
+						var ns = match[1] || '', cName = match[2], subpath = match[3], config = componentInfo[ns + cName] || {};
+						var dir = ns + DIR + '/' + cName + '/';
 
 						if(subpath){
-							fullName = findResource(DIR + '/' + cName + '/' + subpath, map);
+							fullName = findResource(dir + subpath, map);
 						}else{
-							fullName = findResource(DIR + '/' + cName + '/' + (config.main || 'index'), map);
+							fullName = findResource(dir + (config.main || 'index'), map);
 
 							if(!fullName){
-								fullName = findResource(DIR + '/' + cName + '/' + cName, map);
+								fullName = findResource(dir + cName, map);
 							}
 						}
 					}
@@ -93,7 +83,7 @@ module.exports = function(feather, opts){
 
 				if(fullName && map[fullName]){
 					var resolved = info.file = feather.file.wrap(fullName);
-					resolved.url = '/' + fullName;
+					resolved.url = fullName.indexOf(':') > -1 ? fullName : ('/' + fullName);
 					resolved.id = fullName;
 					resolved.setContent('');
 					resolved.useHash = false;
@@ -105,6 +95,9 @@ module.exports = function(feather, opts){
 						return resolved.url;
 					};
 					resolved.isFile = function(){
+						return true;
+					};
+					resolved.exists = function(){
 						return true;
 					};
 
