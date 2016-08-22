@@ -77,10 +77,18 @@ function onFileLookUp(info, file){
 		return;
 	}
 
-	var m = /^([0-9a-zA-Z\.\-_]+)(?:\/(.+))?$/.exec(info.rest);
+	var m = /^(?:(\w+):)?\/?([0-9a-zA-Z\.\-_]+)(?:\/(.+))?\/?$/.exec(info.rest);
+
 	if(m){
-		var cName = m[1];
-		var subpath = m[2];
+		var ns = m[1], cName;
+
+		if(ns == feather.config.get('namespace')){
+			cName = m[2];
+		}else{
+			cName = m[1] + m[2];
+		}
+
+		var subpath = m[3];
 		var config = componentsInfo[cName] ||{};
 		var resolved;
 
