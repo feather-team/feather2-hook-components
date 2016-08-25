@@ -1,6 +1,6 @@
 {
   "name": "feather2-hook-components",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "feather2的components解析策略，在fis的基础上，解决扩展多模块时，解析不了其他模块路径的问题",
   "main": "index.js",
   "scripts": {
