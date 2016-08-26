@@ -85,7 +85,7 @@ function onFileLookUp(info, file){
 		if(ns == feather.config.get('namespace')){
 			cName = m[2];
 		}else{
-			cName = m[1] + m[2];
+			cName = (m[1] ? m[1] + ':' : '') + m[2];
 		}
 
 		var subpath = m[3];
