@@ -77,20 +77,13 @@ function onFileLookUp(info, file){
 		return;
 	}
 
-	var m = /^(?:(\w+):)?\/?([0-9a-zA-Z\.\-_]+)(?:\/(.+))?\/?$/.exec(info.rest);
-
-	if(m){
-		var ns = m[1], cName;
-
-		if(ns == feather.config.get('namespace')){
-			cName = m[2];
-		}else{
-			cName = (m[1] ? m[1] + ':' : '') + m[2];
-		}
-
-		var subpath = m[3];
-		var config = componentsInfo[cName] ||{};
-		var resolved;
+  	var m = /^([0-9a-zA-Z\.\-_]+)(?:\/(.+))?$/.exec(info.rest);
+  	
+  	if(m){
+    	var cName = m[1];
+    	var subpath = m[2];
+    	var config = componentsInfo[cName] || {};
+    	var resolved;
 
 		if(subpath){
 			resolved = findResource('/' + componentsDir + cName + '/' + subpath, file ? file.dirname : feather.project.getProjectPath());
