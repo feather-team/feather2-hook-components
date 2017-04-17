@@ -81,7 +81,8 @@ function onFileLookUp(info, file){
 	var rest = info.rest;
 
 	if(file && file.isComponent && info.rest.charAt(0) == '.'){
-		rest = path.join(path.dirname(file.id), rest).replace(/\\/g, '/').substr(componentsDir.length);
+		rest = path.join(path.dirname(file.subpath), rest).replace(/\\/g, '/').substr(componentsDir.length);
+		rest = rest.replace(/^\//, '');
 	}
 
   	var m = /^([0-9a-zA-Z\.\-_]+)(?:\/(.+))?$/.exec(rest);
